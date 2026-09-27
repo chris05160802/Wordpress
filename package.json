@@ -1,0 +1,15 @@
+{
+  "name": "wp-batch-manager",
+  "version": "1.0.0",
+  "description": "WordPress 多站点批量管理工具：批量管理文章、插件、网站设置、分类标签",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "private": true
+}

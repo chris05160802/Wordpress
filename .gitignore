@@ -1,0 +1,5 @@
+node_modules/
+# Local data: encrypted site credentials, keys, history. Never commit.
+data/
+*.log
+.DS_Store

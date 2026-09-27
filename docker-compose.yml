@@ -1,0 +1,18 @@
+services:
+  wp-batch-manager:
+    build: .
+    restart: unless-stopped
+    ports:
+      # Only reachable from this machine. Put an HTTPS reverse proxy in front to use it remotely.
+      - "127.0.0.1:8686:8686"
+    environment:
+      # Console password (at least 8 characters). Change it!
+      WPBM_PASSWORD: "change-me-please"
+      # Host names the console may be opened under. Add your domain if you put a reverse proxy in front,
+      # e.g. "localhost,wp-admin.example.com"
+      WPBM_ALLOWED_HOSTS: "localhost"
+    volumes:
+      - wpbm-data:/data
+
+volumes:
+  wpbm-data:
