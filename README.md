@@ -26,12 +26,15 @@
 
 | 方式 | 操作 |
 | --- | --- |
-| Windows | 双击 `start.bat` |
+| Windows | 双击 `start.bat`（想让同一 Wi-Fi 的手机也能访问，双击 `start-lan.bat`） |
 | macOS / Linux | 运行 `./start.sh` |
 | 命令行 | `npm start`（或 `node server.js`） |
 | Docker | 修改 `docker-compose.yml` 里的密码后执行 `docker compose up -d` |
 
 启动后浏览器打开 <http://localhost:8686>。
+
+> `localhost` 指的是"正在运行本程序的这台设备"。在电脑上启动，就只能在这台电脑的浏览器里用 `localhost` 打开；
+> 手机上直接打开 `localhost:8686` 是连不上的（会显示"拒绝连线"）。想用手机操作，请看下面的"在手机上使用"。
 
 **第一次使用**：命令行窗口会显示一个带设置码的链接，例如
 
@@ -41,6 +44,33 @@
 ```
 
 打开这个链接，设置一个**管理密码**（至少 8 位）。以后打开本程序都需要输入它——因为本程序保存着你所有网站的管理权限。
+
+### 在手机上使用
+
+**方法 A：电脑开着程序，手机连同一个 Wi-Fi 来操作**
+
+1. Windows 电脑双击 `start-lan.bat`（macOS / Linux 运行 `HOST=0.0.0.0 ./start.sh`）
+2. 如果 Windows 防火墙询问，勾选"专用网络"并允许
+3. 命令行窗口会显示 `手机或其他电脑……请在浏览器打开：http://192.168.x.x:8686`，在手机浏览器输入这个地址
+
+只在自己家里或公司的可信 Wi-Fi 这样用，不要在咖啡厅等公共 Wi-Fi 上开启。
+
+**方法 B：只有 Android 手机，直接在手机上运行**
+
+1. 从 [F-Droid](https://f-droid.org/packages/com.termux/) 安装 Termux（Google Play 上的版本太旧，不能用）
+2. 打开 Termux，依次输入：
+
+   ```bash
+   pkg install -y nodejs-lts git
+   git clone --depth 1 -b claude/wordpress-batch-management-c3t20n https://github.com/chris05160802/Wordpress.git wp-batch-manager
+   cd wp-batch-manager
+   node server.js --open
+   ```
+
+3. 手机浏览器会自动打开设置页面。使用期间不要关闭 Termux。
+   以后再用：打开 Termux，输入 `cd wp-batch-manager && node server.js --open`；更新到新版本：在该目录执行 `git pull`。
+
+iPhone 不能直接运行本程序，请用方法 A，或部署到服务器（见"六、部署到服务器"），就能在任何地方用手机访问。
 
 ## 二、添加站点
 

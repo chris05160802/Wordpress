@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +25,9 @@ function openBrowser(url) {
   const options = { stdio: 'ignore', detached: true };
   let cmd = process.platform === 'darwin' ? 'open' : 'xdg-open';
   let args = [url];
-  if (process.platform === 'win32') {
+  if (process.platform === 'android') {
+    cmd = 'termux-open-url'; // Termux on Android phones
+  } else if (process.platform === 'win32') {
     // `start "" "<url>"`: the empty first argument is the window title. Passed verbatim,
     // because Node's default quoting would turn "" into \"\" and break the command.
     cmd = 'cmd';
@@ -36,6 +39,14 @@ function openBrowser(url) {
   } catch {
     // no browser available; the URL is printed anyway
   }
+}
+
+/** This computer's addresses on the local network, e.g. 192.168.1.23, for opening the console from a phone. */
+function lanAddresses() {
+  return Object.values(os.networkInterfaces())
+    .flat()
+    .filter((a) => a && (a.family === 'IPv4' || a.family === 4) && !a.internal)
+    .map((a) => a.address);
 }
 
 const server = http.createServer(app.handler);
@@ -59,7 +70,13 @@ server.listen(port, host, () => {
     console.log(`  设置码：${app.auth.setupCode}`);
   }
   if (!isLoopback) {
-    console.log('\n注意：当前监听的不是本机地址，其他电脑也能访问。请务必设置足够强的管理密码，并通过 HTTPS 反向代理访问。');
+    const lan = host === '0.0.0.0' || host === '::' ? lanAddresses() : [];
+    if (lan.length) {
+      console.log('\n手机或其他电脑（连同一个 Wi-Fi / 局域网）请在浏览器打开：');
+      for (const ip of lan) console.log(`  http://${ip}:${port}`);
+    }
+    console.log('\n注意：现在同一网络里的其他设备也能访问本程序。只在自己家里或公司的可信网络这样使用，并设置足够强的管理密码；');
+    console.log('如果要放到公网服务器上，请务必通过 HTTPS 反向代理访问（见 README）。');
   }
   console.log('\n按 Ctrl+C 停止运行。');
   if (process.argv.includes('--open')) openBrowser(openUrl);
