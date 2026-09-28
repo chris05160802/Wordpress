@@ -21,11 +21,18 @@ const app = createApp({ dataDir, allowedHosts, trustProxy: process.env.WPBM_TRUS
 await app.auth.configureFromEnv(process.env.WPBM_PASSWORD);
 
 function openBrowser(url) {
-  const [cmd, args] = process.platform === 'win32'
-    ? ['cmd', ['/c', 'start', '""', url]]
-    : [process.platform === 'darwin' ? 'open' : 'xdg-open', [url]];
+  const options = { stdio: 'ignore', detached: true };
+  let cmd = process.platform === 'darwin' ? 'open' : 'xdg-open';
+  let args = [url];
+  if (process.platform === 'win32') {
+    // `start "" "<url>"`: the empty first argument is the window title. Passed verbatim,
+    // because Node's default quoting would turn "" into \"\" and break the command.
+    cmd = 'cmd';
+    args = ['/c', 'start', '""', `"${url}"`];
+    options.windowsVerbatimArguments = true;
+  }
   try {
-    spawn(cmd, args, { stdio: 'ignore', detached: true }).on('error', () => {}).unref();
+    spawn(cmd, args, options).on('error', () => {}).unref();
   } catch {
     // no browser available; the URL is printed anyway
   }
